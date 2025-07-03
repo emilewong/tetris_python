@@ -4,7 +4,22 @@ from piece import Piece
 
 
 class Game:
+    """Main game class that manages Tetris gameplay mechanics.
+
+    Attributes:
+        screen (pygame.Surface): The Pygame surface to render on
+        score (float): Current game score
+        is_over (bool): Whether the game is over
+        current_piece (Piece): The currently active Tetromino piece
+        grid (list): 2D list representing the game board state
+        grid_colors (list): 2D list storing colors for filled grid cells
+    """
     def __init__(self, screen) -> None:
+        """Initialize a new Tetris game instance.
+
+        Args:
+            screen (pygame.Surface): The Pygame surface to render on
+        """
         self.screen = screen
         self.score = None
         self.is_over = True
@@ -12,16 +27,23 @@ class Game:
         self.grid = None
         self.grid_colors = None
 
-    # Reset.
     def reset(self):
+        """Reset the game to initial state, starting a new game.
+
+        Resets score, creates new empty grid, and spawns first piece.
+        """
         self.is_over = False
         self.score = 0.0
         self.grid = [[0, 0] * 10 for i in range(20)]
         self.grid_colors = [[None] * 10 for i in range(20)]
         self.current_piece = Piece()
 
-    # Move left.
     def move_left(self):
+        """Move the current piece left if possible.
+
+        Checks for collisions with grid boundaries or existing blocks.
+        Only moves if there's space available to the left.
+        """
         can_move_left = True
 
         for row, col in self.current_piece.global_coords:
@@ -31,8 +53,12 @@ class Game:
         if can_move_left:
             self.current_piece.center_col -= 1
 
-    # Move right.
     def move_right(self):
+        """Move the current piece right if possible.
+
+        Checks for collisions with grid boundaries or existing blocks.
+        Only moves if there's space available to the right.
+        """
         can_move_right = True
 
         for row, col in self.current_piece.global_coords:
@@ -42,8 +68,12 @@ class Game:
         if can_move_right:
             self.current_piece.center_col += 1
 
-    # Move down.
     def move_down(self):
+        """Move the current piece down if possible.
+
+        Checks for collisions with grid boundaries or existing blocks.
+        Only moves if there's space available below.
+        """
         can_move_down = True
 
         for row, col in self.current_piece.global_coords:
@@ -53,8 +83,12 @@ class Game:
         if can_move_down:
             self.current_piece.center_row += 1
 
-    # Rotate.
     def rotate(self):
+        """Rotate the current piece clockwise if possible.
+
+        Checks for collisions after rotation. Only rotates if
+        the new position would be valid (within bounds and no collisions).
+        """
         new_coords = [[-col, row] for row, col in self.current_piece.relative_coords]
         new_global_coords = [
             [row + self.current_piece.center_row,
@@ -72,8 +106,12 @@ class Game:
             self.current_piece.relative_coords = new_coords
 
 
-    # Update.
     def update(self):
+        """Update game state for one frame.
+
+        Automatically moves piece down, checks for completed lines,
+        and detects game over conditions.
+        """
         self.move_down()
         self._try_land_piece()
         self._clear_rows()
@@ -81,8 +119,11 @@ class Game:
         if sum(self.grid[0]) > 0.0:
             self.is_over = True
 
-    # Render.
     def render(self):
+        """Render all game elements to the screen.
+
+        Draws the current piece, all placed blocks, and the score display.
+        """
         margin = 2
         width = self.screen.get_width() // 10
         height = self.screen.get_height() // 20
